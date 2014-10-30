@@ -45,6 +45,7 @@ package
 		public var suite:TextField;
 		public var ronde:TextField;
 		
+		
 		public function Partie(stage:Stage ,main:Main, gameOverScore:TextField, wildCardBonus:TextField, deckCardBonus:TextField, roundNumberBonus:TextField, yourScore:TextField, pointage:TextField, suite:TextField, ronde:TextField, score:Score) 
 		{
 			this.gameOverScore = gameOverScore;
@@ -58,6 +59,7 @@ package
 			this.score = score;
 			this.stage = stage;
 			this.main = main;
+			
 			
 			
 		}
@@ -144,7 +146,8 @@ package
 						|| carte.valeur + 1 == cartetmp.valeur 
 						|| carte.valeur == 13 && cartetmp.valeur == 1 
 						|| carte.valeur == 1 && cartetmp.valeur == 13
-						||carte.valeur == -1) {
+						||carte.valeur == -1
+						||e.ctrlKey){
 							
 						
 							
@@ -531,14 +534,14 @@ package
 		}
 		
 		public function calculBonus():void {
-			if (!wild) 
+			if (!wildCardRecouverte) 
 			{
-				score.wildCardBonus = 2500;
+				score.wildCardBonus = 5000;
 			}
 			else {
 				score.wildCardBonus = 0;
 			}
-			score.deckCardBonus = paquet.lesCartes.length * 100;
+			score.deckCardBonus = paquet.lesCartes.length * 1000;
 			score.roundBonus = score.ronde * 1000;
 			score.pointage += score.wildCardBonus + score.deckCardBonus + score.roundBonus;
 			score.ronde++;
