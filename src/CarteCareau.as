@@ -1,7 +1,7 @@
 package  
 {
 	/**
-	 * ...
+	 * Cartes de Careau
 	 * @author geoffrey glangine
 	 */
 	public class CarteCareau extends Carte 

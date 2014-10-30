@@ -4,7 +4,7 @@ package
 	import flash.display.SimpleButton;
 	
 	/**
-	 * ...
+	 * Bouton Ok du GameOver
 	 * @author geoffrey glangine
 	 */
 	public class BtnOk extends SimpleButton 

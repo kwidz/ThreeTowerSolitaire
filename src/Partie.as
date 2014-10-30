@@ -12,11 +12,11 @@ package
 	 */
 	public class Partie
 	{
+		//Objets qui s'ajoutent au stage
 		public var btnOk:BtnOk = new BtnOk();
 		public var btnplay:BtnPlay = new BtnPlay();
 		public var btnplayNext:PlayNextRound = new PlayNextRound();
-		public var score:Score;
-		
+		public var score:Score;		
 		private var carte:Carte;
 		private var paquet:PaquetCarte;
 		private var tableauDesCartes:Array;
@@ -25,17 +25,25 @@ package
 		private var main:Main;
 		
 		//atributs à réinnitialiser au prochain round
-		
+		//Carte jouée au dernier tour (pour le bouton Undo)
 		private var carteAvant:Carte = null;
+		//pour le bouton undo, on retient si on a joué une carte du paquet, de l'arbre, ou la wildCard
 		private var paquetjoue:Boolean = true;
 		private var wild:Boolean = false;
 		private var treeJoue:Boolean = false;
+		
+		//Boolean pour savoir si c'est le premier tour de jeu 
 		private var firstTour:Boolean = true;
+		
 		private var stage:Stage;
 		private var victoire:int;
+		//On regarde si la wildCard a été recouverte pour donner le bonus
+		//Car si on utilise malencontreusement la wildCard et que l'on fait un Undo, 
+		//On mérite le bonus car c'est comme si on l'avait utilisé
 		private var wildCardRecouverte:Boolean = false;
 		private var paquetUse:Array = new Array();
 		
+		//Tous mes textFields
 		public var gameOverScore:TextField;
 		public var wildCardBonus:TextField;
 		public var deckCardBonus:TextField;
@@ -45,7 +53,9 @@ package
 		public var suite:TextField;
 		public var ronde:TextField;
 		
-		
+		//creation d'une partie avec un stage un main, des textFields et un score
+		//Comme Ca en début de partie, on mais un new Score() pour lancer une partie avec un pointage a zero et pour les rondes suivante 
+		//on remet le score de l'ancienne ronde
 		public function Partie(stage:Stage ,main:Main, gameOverScore:TextField, wildCardBonus:TextField, deckCardBonus:TextField, roundNumberBonus:TextField, yourScore:TextField, pointage:TextField, suite:TextField, ronde:TextField, score:Score) 
 		{
 			this.gameOverScore = gameOverScore;
@@ -63,6 +73,9 @@ package
 			
 			
 		}
+		/**
+		 * innitialisation du jeu 
+		 */
 		public function jouer():void 
 		{
 			paquet = new PaquetCarte();
@@ -85,24 +98,34 @@ package
 			
 			
 		}
+		/**
+		 * Fonction de click sur une carte du paquet 
+		 * @param	e
+		 */
 		
 	private function clickOnCard(e:MouseEvent):void {
-			
+			//Si ce n'est pas le premier tour on affiche le bouton Undo
 			if (e != null && !firstTour) {
 				afficherUndo();
 			}
+			//Si la carte de jeu est la wildCard alors on la déclare recouverte
 			if (!firstTour) {
 				if (carte.valeur == -1)
 				wildCardRecouverte = true;
 			}
 			
+			//Si c'est le premier tour, On dit que ce n'est plus le premier tour
 			if(firstTour)
 				firstTour = false;
+			//On dit que le paquet a été joué et que la wildCard et que l'arbre n'a pas été joué
 			paquetjoue = true;
 			wild = false;
 			treeJoue = false;
 			
+			//On passe la carteAvant à la carte de jeu 
 			carteAvant = carte;
+			
+			//On pioche une carte dans le paquet t on la déplace sur la carte de jeu
 			
 			carte = paquet.piocher();
 			stage.removeChild(carte);
@@ -113,6 +136,7 @@ package
 			stage.addChild(carte);
 			score.suite = 0;
 			suite.text = "Suite : " + score.suite;
+			//On verifie si la partie est perdue
 			if (estPerdue()) 
 			{
 				supprimerTousLesEnfants();
@@ -120,6 +144,7 @@ package
 				preparePerdu();
 			}
 		}
+		//Clic sur la wild card
 		private function clickWildCard(e:MouseEvent):void {
 			afficherUndo();
 			paquetjoue = false;
@@ -135,6 +160,10 @@ package
 			stage.addChild(carte);
 			
 		}
+		/**
+		 * Clic sur l'arbre de cartes
+		 * @param	e
+		 */
 		private function clickOnTree(e:MouseEvent):void {
 			
 			carteAvant = carte;
@@ -142,6 +171,8 @@ package
 			wild = false;
 			treeJoue = true;
 			var cartetmp:Carte = Carte(e.target);
+			
+			//clickOnCard verifie si la carte cliqué peut se positionner sur la carte de jeu + cheatCode
 			if (carte.valeur - 1 == cartetmp.valeur 
 						|| carte.valeur + 1 == cartetmp.valeur 
 						|| carte.valeur == 13 && cartetmp.valeur == 1 
@@ -150,7 +181,7 @@ package
 						||e.ctrlKey){
 							
 						
-							
+				//On recouvre la wildCard			
 				if (carte.valeur == -1) {
 					wildCardRecouverte = true;
 				}
@@ -158,7 +189,7 @@ package
 				afficherUndo();
 				carte = cartetmp;
 				victoire++;
-			
+				//Traitement de déplacement de la carte
 				stage.removeChild(carte);
 				tableauDesCartes[carte.ligne][carte.colone] = null;
 				carte.ancienX = carte.x;
@@ -172,10 +203,11 @@ package
 				suite.text = "Suite : " + score.suite;
 				
 				stage.addChild(carte);
-						
+			
+			//On vérifie si il faut découvrir la carte qui est derière	
 			if (cartetmp.cartePrecedente1 != null){
 				cartetmp.cartePrecedente1.carte1 = null;
-				if (cartetmp.cartePrecedente1.carte1 == null && cartetmp.cartePrecedente1.carte2 == null){
+			if (cartetmp.cartePrecedente1.carte1 == null && cartetmp.cartePrecedente1.carte2 == null){
 				stage.removeChild(cartetmp.cartePrecedente1.carteDos);
 				cartetmp.cartePrecedente1.addEventListener(MouseEvent.CLICK, clickOnTree);
 			}
@@ -188,14 +220,15 @@ package
 				cartetmp.cartePrecedente2.addEventListener(MouseEvent.CLICK, clickOnTree);
 				}
 			}
-						}
-			
+			}
+			//On verifie si la partie est gagnée
 			if (estGagnee()) 
 			{
 				supprimerTousLesEnfants();
 				main.gotoAndStop(3);
 				prepareNextRound();
 			}
+			//Sinon on vérifie si elle est perdue
 			else
 			if (estPerdue()) 
 			{
@@ -206,7 +239,7 @@ package
 			}
 			
 		}
-		
+		//Creation d'un tableau a deux dimentions
 		private function creerTableau2D():void 
 		{
 			for (var i:int = 0; i < 4; i++) 
@@ -215,8 +248,10 @@ package
 			}
 		}
 		
+		//Création du chainage des cartes 
 		private function creerChainage():void 
 		{
+			//Première ligne
 			for (var j:int = 0; j < 10; j++) 
 			{
 				tableauDesCartes[0][j] = paquet.piocher();
@@ -224,6 +259,8 @@ package
 				tableauDesCartes[0][j].colone = j;
 				tableauDesCartes[0][j].addEventListener(MouseEvent.CLICK, clickOnTree);
 			}
+			
+			//Seconde Ligne
 			for (var k:int = 0; k < 9; k++) 
 			{
 				tableauDesCartes[1][k] = paquet.piocher();
@@ -234,7 +271,7 @@ package
 				tableauDesCartes[1][k].ligne = 1;
 				tableauDesCartes[1][k].colone = k;
 			}
-			
+			//Troisième ligne
 			for (var l:int = 0; l < 9; l++) 
 			{
 				if((l+1)%3!=0){	
@@ -247,6 +284,7 @@ package
 				tableauDesCartes[2][l].colone = l;
 				}
 			}
+			//Quatrième ligne
 			for (var m:int = 0; m < 7; m++) 
 			{
 				if((m)%3==0){	
@@ -260,7 +298,7 @@ package
 				}
 			}
 		}
-		
+		//Affichage des cartes + ajout des événements
 		private function afficherArbre():void 
 		{
 			for (var n:int = 3; n >=0; n--) 
@@ -285,6 +323,8 @@ package
 			}
 		}
 		
+		//Affichage du paquet de cartes + ajout de l'événement
+		
 		private function afficherPaquet():void 
 		{
 			for (var p:int = 0; p < paquet.lesCartes.length; p++) 
@@ -304,6 +344,8 @@ package
 			}
 		}
 		
+		//Affichage de la wild card + ajout de l'événement
+		
 		private function afficherWildCard():void 
 		{
 			wildCard = new WildCard();
@@ -312,6 +354,8 @@ package
 			wildCard.addEventListener(MouseEvent.CLICK, clickWildCard);
 			stage.addChild(wildCard);
 		}
+		
+		//Affichage du bouton Undo
 		private function afficherUndo():void {
 			
 			undo.x = 406;
@@ -319,12 +363,17 @@ package
 			stage.addChild(undo);
 			undo.addEventListener(MouseEvent.CLICK, clickOnUndo)
 		}
+		
+		//Masquage du bouton Undo
 		private function masquerUndo():void {
 			stage.removeChild(undo);
 		}
+		
+		//Traitement du Undo
 		private function clickOnUndo(e:MouseEvent):void {
 			score.suite = 0;
 			suite.text = "Suite : " + score.suite;
+			//Si on avait joué le paquet
 			if (paquetjoue) 
 			{
 				paquet.remettre(carte);				
@@ -336,6 +385,7 @@ package
 				carte = carteAvant;
 				
 			}
+			//Si On avait Joué la WildCard
 			if (wild) 
 			{
 				stage.removeChild(wildCard);
@@ -345,9 +395,13 @@ package
 				carte = carteAvant;
 				
 			}
+			
+			//Si on avait joué l'arbre
 			if (treeJoue) {
 				victoire--;
 					
+					//Reproduire le chainage et masquer les cartes si il le faut
+				
 					if (carte.cartePrecedente1!=null) 
 					{				
 						trace("carte precedente1");
@@ -378,18 +432,30 @@ package
 				}
 			masquerUndo();
 		}
-		
+		//Vérification de la victoire
 		public function estGagnee():Boolean {
+			//Il y a 28 Cartes dans l'arbre, si on en a joué 28 c'est gagné
 			if (victoire == 28)
 				return true;
 				
 			return false;
 		}
+		
+		//Verification de la défaite
+		/**
+		 * Pour perdre, il faut Que l'on ne puisse plus jouer et que la wildCard ait étée utilisée
+		 * @return
+		 */
 		public function estPerdue():Boolean {
 			if (wildCardRecouverte && !estGagnee() && aucunCoupJouable())
 				return true;
 			return false;
 		}
+		
+		/**
+		 * Vérification de la défaite
+		 * @return
+		 */
 		public function aucunCoupJouable():Boolean 
 		{
 			var jouable:Boolean = false;
@@ -432,7 +498,7 @@ package
 			}
 			return true;
 		}
-		
+		//Suppression de toutes les cartes et les boutons de l'écran de jeu 
 		public function supprimerTousLesEnfants():void {
 			for (var n:int = 3; n >=0; n--) 
 				{
@@ -470,7 +536,9 @@ package
 				stage.removeChild(pointage);
 				stage.removeChild(suite);
 		}
-		
+		/**
+		 * Toutes les fonctions suivantes sont simplement un affichage des bons boutons et des bon textes dans les écrans
+		 */
 		public function preparePerdu():void{
 			btnOk.x = 270;
 			btnOk.y = 325;
@@ -532,7 +600,9 @@ package
 			pointage.text = ""+score.pointage;
 				
 		}
-		
+		/**
+		 * Calcul du bonus et incrémentation du score
+		 */
 		public function calculBonus():void {
 			if (!wildCardRecouverte) 
 			{

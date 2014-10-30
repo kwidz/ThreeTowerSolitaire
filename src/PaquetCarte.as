@@ -7,7 +7,7 @@ package
 	public class PaquetCarte 
 	{
 		public var lesCartes:Array = new Array();
-		
+		//Création du paquet de carte 
 		public function PaquetCarte() 
 		{
 			for (var i:int = 0; i < 4 ; i++) 
@@ -33,6 +33,8 @@ package
 				}
 			}
 		}
+		
+		//On brasse le paquet
 		public function shake():void 
 		{
 			var tabCartesAleatoire:Array = new Array();
@@ -47,10 +49,12 @@ package
 			lesCartes = tabCartesAleatoire;
 			//trace(lesCartes);
 		}
+		//On pioche une carte dans le paquet
 		public function piocher():Carte {
 			return lesCartes.shift();
 			
 		}
+		//On ajoute une carte dans le paquet
 		public function remettre(carte:Carte):void {
 			lesCartes.unshift(carte);
 			
