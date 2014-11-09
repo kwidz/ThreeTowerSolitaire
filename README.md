@@ -6,6 +6,6 @@ and make a link between the cards.
 Install :
 -------------------
 
-You just have to download and execute the /bin/ThreeTower.swf
+You just have to download and execute the /bin/JeuPatienceThreeTowers.swf
 
 Enjoy !
