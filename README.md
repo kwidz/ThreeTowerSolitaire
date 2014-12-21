@@ -9,3 +9,7 @@ Install :
 You just have to download and execute the /bin/JeuPatienceThreeTowers.swf
 
 Enjoy !
+
+ScreenShot
+----------
+![Alt text](ScreenShots/Capture.PNG)
